@@ -185,6 +185,18 @@ export const splitAt = <T extends Sliceable>(
     xs.slice(i, xs.length),
 ];
 
+export function* splitEvery<T>(xs: T[], i: number): IterableIterator<T[]> {
+    let [first, rest] = splitAt(xs, i);
+    while (true) {
+        yield first;
+        if (rest.length < i) {
+            break;
+        }
+
+        [first, rest] = splitAt(rest, i);
+    }
+}
+
 export const isDefined = <T>(x: T | undefined): x is T => x !== undefined;
 
 export const sum = (data: Iterable<number>): number =>
