@@ -67,36 +67,32 @@ const part2 = (grid: Grid<number>): number => {
 
             let up = 0;
             for (let r = row - 1; r >= 0; --r) {
-                if (curr < grid[r][col]) {
-                    up++;
-                } else {
+                up++;
+                if (curr <= grid[r][col]) {
                     break;
                 }
             }
 
             let down = 0;
             for (let r = row + 1; r < grid.length; ++r) {
-                if (curr < grid[r][col]) {
-                    down++;
-                } else {
+                down++;
+                if (curr <= grid[r][col]) {
                     break;
                 }
             }
 
             let left = 0;
             for (let c = col - 1; c >= 0; --c) {
-                if (curr < grid[row][c]) {
-                    left++;
-                } else {
+                left++;
+                if (curr <= grid[row][c]) {
                     break;
                 }
             }
 
             let right = 0;
             for (let c = col + 1; c < grid[0].length; ++c) {
-                if (curr < grid[row][c]) {
-                    right++;
-                } else {
+                right++;
+                if (curr <= grid[row][c]) {
                     break;
                 }
             }
