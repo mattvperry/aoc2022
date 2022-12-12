@@ -27,6 +27,13 @@ export function reduce<T, U>(
     return acc;
 }
 
+export function reduce2<T>(
+    [head, ...tail]: Iterable<T>,
+    fn: (acc: T, curr: T) => T
+): T {
+    return reduce(tail, head, fn);
+}
+
 export function mapAsync<T, U>(
     data: AsyncIterable<T>,
     fn: (curr: T) => Promise<U>,
