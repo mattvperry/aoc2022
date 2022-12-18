@@ -1,4 +1,4 @@
-import { readInputLines, reduce } from '../shared/utils';
+import { countBy, map, readInputLines, reduce, sumBy } from '../shared/utils';
 
 type Coord = [number, number, number];
 type CoordS = `${number}_${number}_${number}`;
@@ -17,23 +17,14 @@ const moves = [
 ];
 
 const surface = (coords: Coord[]): number => {
-    let sum = 0;
-    const set = new Set<CoordS>(coords.map(toCoordS));
-    for (const [x, y, z] of coords) {
-        for (const [dx, dy, dz] of moves) {
-            if (!set.has(toCoordS([x + dx, y + dy, z + dz]))) {
-                sum++;
-            }
-        }
-    }
-
-    return sum;
+    const set = new Set<CoordS>(map(coords, toCoordS));
+    return sumBy(
+        coords, 
+        ([x, y, z]) => countBy(moves, (([dx, dy, dz]) => !set.has(toCoordS([x + dx, y + dy, z + dz]))))
+    );
 };
 
-const part1 = (coords: Coord[]): number => surface(coords);
-
-const part2 = (coords: Coord[]): number => {
-    const set = new Set<CoordS>(coords.map(toCoordS));
+const day18 = (coords: Coord[]): [number, number] => {
     const [[minX, maxX], [minY, maxY], [minZ, maxZ]] = reduce(
         coords,
         [[Infinity, -Infinity], [Infinity, -Infinity], [Infinity, -Infinity]],
@@ -52,32 +43,38 @@ const part2 = (coords: Coord[]): number => {
             ],
         ]);
 
-    const air: Coord[] = [];
+    let bubbles: Coord[] = [];
+    const lavaSet = new Set<CoordS>(coords.map(toCoordS));
     for (let x = minX; x <= maxX; ++x) {
         for (let y = minY; y <= maxY; ++y) {
             for (let z = minZ; z <= maxZ; ++z) {
-                if (!set.has(toCoordS([x, y, z]))) {
-                    air.push([x, y, z]);
+                if (!lavaSet.has(toCoordS([x, y, z]))) {
+                    bubbles.push([x, y, z]);
                 }
             }
         }
     }
 
-    const bubbles: Coord[] = [];
-    const all = new Set<CoordS>([...set, ...air.map(toCoordS)]);
-    for (const [x, y, z] of air) {
-        if (moves.every(([dx, dy, dz]) => all.has(toCoordS([x + dx, y + dy, z + dz])))) {
-            bubbles.push([x, y, z]);
+    while (true) {
+        const bubbleSet = new Set<CoordS>(bubbles.map(toCoordS));
+        bubbles = bubbles.filter(([x, y, z]) => moves.every(([dx, dy, dz]) => {
+            const s = toCoordS([x + dx, y + dy, z + dz]);
+            return bubbleSet.has(s) || lavaSet.has(s);
+        }));
+        if (bubbles.length === bubbleSet.size) {
+            break;
         }
     }
 
-    return surface(coords) - surface(bubbles);
+    const p1 = surface(coords);
+    return [p1, p1 - surface(bubbles)];
 };
 
 (async () => {
     const input = await readInputLines('day18');
     const coords = input.map(parse);
+    const [p1, p2] = day18(coords);
 
-    console.log(part1(coords));
-    console.log(part2(coords));
+    console.log(p1);
+    console.log(p2);
 })();
